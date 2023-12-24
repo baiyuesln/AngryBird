@@ -1,0 +1,65 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MapLevelUI : MonoBehaviour
+{
+    public GameObject mapListGo;
+    public GameObject levelListGo;
+    public GameObject levelGridGo;
+
+    public List<MapUI> mapUIList;
+
+    public GameObject levelTemplatePrefab;
+
+    public void ShowMapList(MapSO[] mapArray)
+    {
+        mapListGo.SetActive(true);
+        levelListGo.SetActive(false);
+        UpdateMapUIList(mapArray);
+    }
+
+    private void UpdateMapUIList(MapSO[] mapArray)
+    {
+        for (int i = 0; i < mapArray.Length; i++)
+        {
+            mapUIList[i].Show(mapArray[i].starNumberOfMap,this,i+1);
+        }
+    }
+
+    public void OnMapButtonClick(int mapID)
+    {
+        LevelSelectManager.Instance.SetSelectedMap(mapID);
+        ShowLevelGrid();
+    }
+
+    private void ShowLevelGrid()
+    {
+        mapListGo.SetActive(false);
+        levelListGo.SetActive(true);
+        int[] starNumberOfLevels = LevelSelectManager.Instance.GetSelectedMap();
+
+        foreach(Transform child in levelGridGo.transform)
+        {
+            Destroy(child.gameObject); 
+        }
+
+        for (int i = 0;i < starNumberOfLevels.Length; i++)
+        {
+            GameObject go = GameObject.Instantiate(levelTemplatePrefab);
+            go.GetComponent<RectTransform>().SetParent(levelGridGo.transform);
+            go.GetComponent<LevelUI>().Show(starNumberOfLevels[i],i+1,this);
+        }
+    }
+
+    public void OnLevelButtonClick(int levelID)
+    {
+        LevelSelectManager.Instance.SetSelectedLevel(levelID);
+    }
+
+    public void OnReturnButtonClick()
+    {
+        mapListGo.SetActive(true);
+        levelListGo.SetActive(false);
+    }
+}
